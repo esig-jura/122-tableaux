@@ -41,6 +41,7 @@ const personnes = [
 // Récupère le 1er formulaire du document
 const formulaire = document.querySelector('form');
 // Récupère les champs textes
+const txtRecherche = document.querySelector('#rechercher');
 const txtNom = document.querySelector('#nom');
 const txtPrenom = document.querySelector('#prenom');
 const txtAge = document.querySelector('#age');
@@ -53,8 +54,8 @@ let tri = 'prenom';
 console.log(formulaire, txtNom, tableBody);
 
 // Fonction qui trie le tableau par la colonne passée en paramètre avec localeCompare
-function trierTableau(colonne) {
-    personnes.sort(function(a, b) {
+function trierTableau(tableau, colonne) {
+    tableau.sort(function(a, b) {
         if(typeof a[colonne] === 'string') {
             return a[colonne].localeCompare(b[colonne], 'fr');
         }
@@ -62,14 +63,26 @@ function trierTableau(colonne) {
     });
 }
 
+// Fonction qui recherche une chaine de caractère dans une colonne du tableau
+function filtrerTableau(tableau, colonne, recherche) {
+    if (recherche === '') {
+        return tableau;
+    }
+    return tableau.filter(function(element) {
+        return element[colonne].toLowerCase().includes(recherche.toLowerCase());
+    });
+}
+
 // Méthode qui construit le tableau HTML à partir du tableau JS personnes
 function construireTableau() {
     // Trie le tableau par la colonne passée en paramètre
-    trierTableau(tri);
+    trierTableau(personnes, tri);
+    // Filtre les données
+    let tableauFiltre = filtrerTableau(personnes, 'prenom', txtRecherche.value);
     // Crée une chaîne de caractères vide
     let tableHTML = '';
     // Parcours le tableau personnes
-    personnes.forEach(function(personne) {
+    tableauFiltre.forEach(function(personne) {
         // Ajoute une nouvelle ligne au tableau HTML
         tableHTML += `
             <tr>
@@ -102,6 +115,10 @@ formulaire.addEventListener('submit', function envoyer(event) {
     // Focus sur le prénom
     txtPrenom.focus();
 });
+
+// Au changement de la valeur du champ de recherche
+txtRecherche.addEventListener('input', construireTableau);
+
 
 // Après le chargement de la page, on construit le tableau
 window.addEventListener('load', construireTableau);
